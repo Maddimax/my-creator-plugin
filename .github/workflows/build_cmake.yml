@@ -115,6 +115,8 @@ jobs:
           file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
 
           file(READ ./Updates.xml updates_xml)
+          # XML entities such as &lt; contain semicolons, which would split the list below
+          string(REPLACE ";" "," updates_xml "${updates_xml}")
           # get the package sections, only for given compiler, without the "debug info" ones
           string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
           list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
