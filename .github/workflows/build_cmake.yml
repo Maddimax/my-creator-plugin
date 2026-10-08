@@ -24,14 +24,14 @@ jobs:
             os: windows-latest,
             platform: windows_x64,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            environment_script: "vcvars64.bat",
           }
         - {
             name: "Windows Latest MSVC Arm64", artifact: "Windows-arm64",
             os: windows-11-arm,
             platform: windows_arm64,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvarsarm64.bat",
+            environment_script: "vcvarsarm64.bat",
           }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux-x64",
@@ -197,7 +197,13 @@ jobs:
 
         if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
           execute_process(
-            COMMAND "${{ matrix.config.environment_script }}" && set
+            COMMAND "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products * -property installationPath
+            OUTPUT_VARIABLE vs_path
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+          )
+          file(TO_CMAKE_PATH "${vs_path}" vs_path)
+          execute_process(
+            COMMAND "${vs_path}/VC/Auxiliary/Build/${{ matrix.config.environment_script }}" && set
             OUTPUT_FILE environment_script_output.txt
           )
           file(STRINGS environment_script_output.txt output_lines)
