@@ -111,7 +111,11 @@ jobs:
             set(compiler_id "clang_64")
           endif()
 
-          set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
+          set(qt_repo "qt6_${qt_version_dotless}")
+          if (platform STREQUAL "windows_x64")
+            set(qt_repo "qt6_${qt_version_dotless}_msvc2022_64")
+          endif()
+          set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/${qt_repo}")
           file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
 
           file(READ ./Updates.xml updates_xml)
@@ -158,7 +162,7 @@ jobs:
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
           endfunction()
 
-          foreach(package qtbase qtdeclarative qtshadertools)
+          foreach(package qtbase qtdeclarative qtshadertools qttasktree)
             downloadAndExtract(${package} "")
           endforeach()
 
