@@ -225,9 +225,15 @@ jobs:
             set(ENV{CMAKE_OSX_ARCHITECTURES} "x86_64;arm64")
         endif()
 
+        set(qtc_path "${{ steps.qt_creator.outputs.path }}")
+        # macOS packages unpack into "Qt Creator.sdk"
+        if (EXISTS "${qtc_path}/Qt Creator.sdk")
+          set(qtc_path "${qtc_path}/Qt Creator.sdk")
+        endif()
+
         set(build_plugin_py "scripts/build_plugin.py")
         foreach(dir "share/qtcreator/scripts" "Qt Creator.app/Contents/Resources/scripts" "Contents/Resources/scripts")
-          if(EXISTS "${{ steps.qt_creator.outputs.path }}/${dir}/build_plugin.py")
+          if(EXISTS "${qtc_path}/${dir}/build_plugin.py")
             set(build_plugin_py "${dir}/build_plugin.py")
             break()
           endif()
@@ -236,12 +242,12 @@ jobs:
         execute_process(
           COMMAND python
             -u
-            "${{ steps.qt_creator.outputs.path }}/${build_plugin_py}"
+            "${qtc_path}/${build_plugin_py}"
             --name "$ENV{PLUGIN_NAME}-$ENV{QT_CREATOR_VERSION}-${{ matrix.config.artifact }}"
             --src .
             --build build
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
-            --qtc-path "${{ steps.qt_creator.outputs.path }}"
+            --qtc-path "${qtc_path}"
             --output-path "$ENV{GITHUB_WORKSPACE}"
             ${additional_config}
           RESULT_VARIABLE result
